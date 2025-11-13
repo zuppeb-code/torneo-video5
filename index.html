@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Torneo Video</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; background: #fafafa; margin: 20px; }
+    video { width: 320px; border-radius: 10px; margin: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+    button { margin: 10px; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; background: #4CAF50; color: white; }
+    button:hover { background: #45a049; }
+    .match { display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <h1>🎥 Torneo Video</h1>
+  <h2 id="round-label"></h2>
+  <div id="match-container"></div>
+
+  <p id="status" style="color: gray; margin-top: 20px;"></p>
+
+  <script src="script.js"></script>
+</body>
+</html>
