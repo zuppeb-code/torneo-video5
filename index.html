@@ -1,24 +1,97 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Torneo Video</title>
-  <style>
-    body { font-family: Arial, sans-serif; text-align: center; background: #fafafa; margin: 20px; }
-    video { width: 320px; border-radius: 10px; margin: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-    button { margin: 10px; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; background: #4CAF50; color: white; }
-    button:hover { background: #45a049; }
-    .match { display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; }
-  </style>
+<meta charset="UTF-8">
+<title>Torneo Video</title>
+<style>
+body { font-family: sans-serif; text-align:center; margin-top:40px; }
+video { width:300px; margin:10px; border-radius:10px; }
+button { padding:10px 20px; border:none; border-radius:8px; background:#4CAF50; color:white; cursor:pointer; margin:5px; }
+</style>
 </head>
 <body>
-  <h1>🎥 Torneo Video</h1>
-  <h2 id="round-label"></h2>
-  <div id="match-container"></div>
+<h1>Torneo Video (Demo 4 video)</h1>
+<div id="container"></div>
+<p id="status"></p>
+<script>
+// URL del tuo Apps Script Web App
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx12345/exec";
 
-  <p id="status" style="color: gray; margin-top: 20px;"></p>
+// Proxy per evitare CORS
+const VOTE_ENDPOINT = "https://corsproxy.io/?" + encodeURIComponent(APPS_SCRIPT_URL);
 
-  <script src="script.js"></script>
+// Video di esempio
+const videos = [
+  "https://res.cloudinary.com/di8xgmagx/video/upload/v1762869539/video_22_croppato_e_resized_2_alfqf0.mp4",
+  "https://res.cloudinary.com/di8xgmagx/video/upload/v1762869532/21_qgoo7n.mp4",
+  "https://res.cloudinary.com/di8xgmagx/video/upload/v1762868674/video_1-2-3-4_jwsh0a.mp4",
+  "https://res.cloudinary.com/di8xgmagx/video/upload/v1762868649/definitvo_20_fjlxte.mp4"
+];
+
+let round = 1;
+let winners = [];
+
+function render(i) {
+  if (i >= videos.length) {
+    if (videos.length === 1) {
+      document.getElementById("container").innerHTML = `<h2>🏆 Vincitore finale</h2><video src="${videos[0]}" controls></video>`;
+      return;
+    }
+    // Passa al turno successivo
+    videos.length = 0;
+    videos.push(...winners);
+    winners = [];
+    round++;
+    render(0);
+    return;
+  }
+
+  const a = videos[i];
+  const b = videos[i+1];
+  if (!b) { // Caso dispari
+    winners.push(a);
+    render(i+2);
+    return;
+  }
+
+  document.getElementById("container").innerHTML = `
+    <div>
+      <video src="${a}" controls></video><br>
+      <button onclick="vote(${i}, '${a}')">Vota A</button>
+      <video src="${b}" controls></video><br>
+      <button onclick="vote(${i}, '${b}')">Vota B</button>
+    </div>
+  `;
+}
+
+function vote(i, winner) {
+  winners.push(winner);
+  const payload = {
+    userId: "user-"+Math.floor(Math.random()*10000),
+    round: round,
+    match: i+1,
+    winner: winner
+  };
+
+  fetch(VOTE_ENDPOINT, {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify(payload)
+  })
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById("status").innerText = "✅ Voto registrato";
+    render(i+2);
+  })
+  .catch(err => {
+    console.error(err);
+    document.getElementById("status").innerText = "❌ Errore voto";
+    render(i+2);
+  });
+}
+
+// Avvia torneo
+render(0);
+</script>
 </body>
 </html>
